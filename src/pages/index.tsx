@@ -1,8 +1,9 @@
 import { useRouter } from "next/dist/client/router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Layout } from "../components/Layout";
-import { Question } from "../components/Question";
+import { Layout } from "components/Layout";
+import { Question } from "components/Question";
+import { authService } from "firebase.confg";
 
 const DefaultData = [
   {

@@ -1,12 +1,12 @@
 import { useRouter } from "next/dist/client/router";
-import { Avatar } from "../../components/Avatar";
-import { Layout } from "../../components/Layout";
+import { Avatar } from "components/Avatar";
+import { Layout } from "components/Layout";
 import {
   IoHeartOutline,
   IoChatboxEllipsesOutline,
   IoSend,
 } from "react-icons/io5";
-import { Comment } from "../../components/Comment";
+import { Comment } from "components/Comment";
 
 const QuestionPage = () => {
   const router = useRouter();
@@ -14,7 +14,7 @@ const QuestionPage = () => {
   const goHome = () => {
     router.push("/");
   };
-
+  console.log(process.env.HI);
   return (
     <Layout>
       <div className="pb-20">

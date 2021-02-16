@@ -1,7 +1,8 @@
 import React from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { APP_NAME } from "../common/constants";
+import { APP_NAME } from "common/constants";
+import { authService, firebaseInstance } from "firebase.confg";
 
 interface ILayoutProps {
   title?: string;
@@ -13,10 +14,16 @@ export const Layout: React.FC<ILayoutProps> = ({
 }) => {
   const onLoginClick = () => {
     console.log("Login");
+    onSocialClick();
   };
 
   const onCreateAccountClick = () => {
     console.log("Create Account");
+  };
+
+  const onSocialClick = async () => {
+    const provider = new firebaseInstance.auth.GoogleAuthProvider();
+    await authService.signInWithPopup(provider);
   };
 
   return (
