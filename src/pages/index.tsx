@@ -1,3 +1,4 @@
+import { useRouter } from "next/dist/client/router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Layout } from "../components/Layout";
@@ -5,21 +6,25 @@ import { Question } from "../components/Question";
 
 const DefaultData = [
   {
+    id: 1,
     title: "짜장면은 왜 국물이 없을까요?",
     writer: "Kan",
     createdAt: "2021-02-16",
   },
   {
+    id: 2,
     title: "짜장면은 왜 국물이 없을까요?",
     writer: "Kan",
     createdAt: "2021-02-16",
   },
   {
+    id: 3,
     title: "짜장면은 왜 국물이 없을까요?",
     writer: "Kan",
     createdAt: "2021-02-16",
   },
   {
+    id: 4,
     title: "짜장면은 왜 국물이 없을까요?",
     writer: "Kan",
     createdAt: "2021-02-16",
@@ -42,7 +47,12 @@ const HomePage = () => {
   const onSubmit = () => {
     const { text } = getValues();
     setData(prev => [
-      { title: text, writer: "Kan", createdAt: "2021-02-16" },
+      {
+        id: data.length + 1,
+        title: text,
+        writer: "Kan",
+        createdAt: "2021-02-16",
+      },
       ...prev,
     ]);
     setValue("text", "");
@@ -51,6 +61,11 @@ const HomePage = () => {
 
   const onCancelClick = () => {
     setActivedAddModal(false);
+  };
+
+  const router = useRouter();
+  const onQuestionClick = (id: number) => {
+    router.push(`/question/${id}`);
   };
 
   return (
@@ -70,9 +85,12 @@ const HomePage = () => {
         <div>
           {data.map(question => (
             <Question
+              id={question.id}
+              key={question.id}
               title={question.title}
               writer={question.writer}
               createdAt={question.createdAt}
+              onCardClick={onQuestionClick}
             />
           ))}
         </div>
