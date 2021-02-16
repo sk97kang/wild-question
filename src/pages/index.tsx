@@ -45,6 +45,7 @@ const HomePage = () => {
       { title: text, writer: "Kan", createdAt: "2021-02-16" },
       ...prev,
     ]);
+    setValue("text", "");
     setActivedAddModal(false);
   };
 
