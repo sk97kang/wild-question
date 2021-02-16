@@ -45,7 +45,9 @@ export const Layout: React.FC<ILayoutProps> = ({
           </ul>
         </nav>
       </header>
-      <main className="max-w-screen-md mx-auto">{children}</main>
+      <main className="max-w-screen-md mx-auto pb-10 px-4 md:px-0">
+        {children}
+      </main>
     </div>
   );
 };
