@@ -47,8 +47,10 @@ const QuestionPage = () => {
   };
 
   useEffect(() => {
-    getData();
-  }, []);
+    if (router.query.id) {
+      getData();
+    }
+  }, [router.query]);
 
   const { register, handleSubmit, getValues, setValue } = useForm<IFormProps>();
 
