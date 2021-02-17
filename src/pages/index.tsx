@@ -1,62 +1,80 @@
 import { useRouter } from "next/dist/client/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Layout } from "components/Layout";
 import { Question } from "components/Question";
-import { authService } from "firebase.confg";
-
-const DefaultData = [
-  {
-    id: 1,
-    title: "짜장면은 왜 국물이 없을까요?",
-    writer: "Kan",
-    createdAt: "2021-02-16",
-  },
-  {
-    id: 2,
-    title: "짜장면은 왜 국물이 없을까요?",
-    writer: "Kan",
-    createdAt: "2021-02-16",
-  },
-  {
-    id: 3,
-    title: "짜장면은 왜 국물이 없을까요?",
-    writer: "Kan",
-    createdAt: "2021-02-16",
-  },
-  {
-    id: 4,
-    title: "짜장면은 왜 국물이 없을까요?",
-    writer: "Kan",
-    createdAt: "2021-02-16",
-  },
-];
+import { authService, dbService } from "firebase.confg";
+import { useRecoilState } from "recoil";
+import { userState } from "stores/user";
 
 interface IFormProps {
   text: string;
 }
 
 const HomePage = () => {
-  const [data, setData] = useState(DefaultData);
+  const [user, setUser] = useRecoilState(userState);
+  const [questionLoading, setQuestionLoading] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = authService.onAuthStateChanged(user => {
+      if (user) {
+        const userObj = {
+          displayName: user.displayName || "",
+          photoURL: user.photoURL || "",
+          uid: user.uid,
+        };
+        setUser(userObj);
+      } else {
+        setUser(null);
+      }
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const [data, setData] = useState<QuestionType[]>([]);
   const [activedAddModal, setActivedAddModal] = useState(false);
   const { register, getValues, setValue, handleSubmit } = useForm<IFormProps>();
+  const questionsRef = dbService.collection("questions");
 
   const onAddQuestionClick = () => {
+    if (!user) {
+      alert("로그인을 먼저 진행해주세요!");
+      return;
+    }
+
     setActivedAddModal(true);
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
+    if (!user) {
+      alert("로그인을 먼저 진행해주세요!");
+      return;
+    }
     const { text } = getValues();
-    setData(prev => [
-      {
-        id: data.length + 1,
-        title: text,
-        writer: "Kan",
-        createdAt: "2021-02-16",
-      },
-      ...prev,
-    ]);
-    setValue("text", "");
+    try {
+      if (!questionLoading) {
+        setQuestionLoading(true);
+        const newId = await questionsRef.doc().id;
+        const newData = {
+          id: newId,
+          title: text,
+          writer: {
+            id: user.uid,
+            name: user.displayName,
+            image: user.photoURL,
+          },
+          createdAt: Date.now(),
+        };
+        await questionsRef.doc(newId).set(newData);
+        setData(prev => [newData, ...prev]);
+        setValue("text", "");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setQuestionLoading(false);
     setActivedAddModal(false);
   };
 
@@ -65,9 +83,30 @@ const HomePage = () => {
   };
 
   const router = useRouter();
-  const onQuestionClick = (id: number) => {
+
+  const onQuestionClick = (id: string) => {
     router.push(`/question/${id}`);
   };
+
+  const getQuestionData = async () => {
+    try {
+      const docs = await questionsRef.get();
+      const newData: any = [];
+      docs.forEach(doc => {
+        newData.push({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+      setData(newData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getQuestionData();
+  }, []);
 
   return (
     <Layout>
@@ -86,11 +125,8 @@ const HomePage = () => {
         <div>
           {data.map(question => (
             <Question
-              id={question.id}
               key={question.id}
-              title={question.title}
-              writer={question.writer}
-              createdAt={question.createdAt}
+              question={question}
               onCardClick={onQuestionClick}
             />
           ))}
@@ -119,7 +155,7 @@ const HomePage = () => {
               <textarea
                 ref={register({ required: "생각을 입력해주세요!" })}
                 name="text"
-                className="resize-none w-full border border-indigo-300 rounded-md p-2 h-18 mb-4 text-center"
+                className="resize-none w-full border border-indigo-300 rounded-md p-2 h-18 mb-4"
                 placeholder="엉뚱한 생각도 좋아요!"
               />
               <button className="w-full py-2 px-4 rounded-sm text-white bg-indigo-500 hover:bg-indigo-700 transition focus:outline-none">

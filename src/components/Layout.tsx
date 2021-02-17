@@ -3,6 +3,9 @@ import Head from "next/head";
 import Link from "next/link";
 import { APP_NAME } from "common/constants";
 import { authService, firebaseInstance } from "firebase.confg";
+import { useRecoilValue } from "recoil";
+import { userState } from "stores/user";
+import { Avatar } from "./Avatar";
 
 interface ILayoutProps {
   title?: string;
@@ -12,13 +15,16 @@ export const Layout: React.FC<ILayoutProps> = ({
   children,
   title = APP_NAME,
 }) => {
+  const user = useRecoilValue(userState);
+
   const onLoginClick = () => {
     console.log("Login");
     onSocialClick();
   };
 
-  const onCreateAccountClick = () => {
-    console.log("Create Account");
+  const onLogoutClick = () => {
+    console.log("Logout");
+    authService.signOut();
   };
 
   const onSocialClick = async () => {
@@ -43,12 +49,21 @@ export const Layout: React.FC<ILayoutProps> = ({
             </li>
           </ul>
           <ul className="flex">
-            <li className="mr-4">
-              <button onClick={onLoginClick}>로그인</button>
-            </li>
-            <li>
-              <button onClick={onCreateAccountClick}>회원가입</button>
-            </li>
+            {!user && (
+              <li className="mr-4">
+                <button onClick={onLoginClick}>로그인</button>
+              </li>
+            )}
+            {user && (
+              <>
+                <li>
+                  <Avatar name={user.displayName} image={user.photoURL} />
+                </li>
+                <li className="mr-4">
+                  <button onClick={onLogoutClick}>로그아웃</button>
+                </li>
+              </>
+            )}
           </ul>
         </nav>
       </header>
