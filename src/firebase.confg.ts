@@ -5,13 +5,13 @@ import "firebase/firestore";
 import "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDp8KY_fBbyxDTIjkI1ZGAtuIFHaLi99xQ",
-  authDomain: "wild-question.firebaseapp.com",
-  projectId: "wild-question",
-  storageBucket: "wild-question.appspot.com",
-  messagingSenderId: "302311879480",
-  appId: "1:302311879480:web:64222a78dfeedd8f5d47cd",
-  measurementId: "G-Q59BGS6MWD",
+  apiKey: process.env.NEXT_PUBLIC_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_IDG,
 };
 
 if (!firebase.apps.length) {
