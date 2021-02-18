@@ -99,7 +99,7 @@ const QuestionPage = () => {
           <div>
             <div className="flex justify-between items-center">
               <Avatar
-                size={10}
+                size={36}
                 name={questionData.writer.name}
                 image={questionData.writer.image}
               />
