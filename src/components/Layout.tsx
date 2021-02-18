@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { APP_NAME } from "common/constants";
 import { authService, firebaseInstance } from "firebase.confg";
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { userState } from "stores/user";
 import { Avatar } from "./Avatar";
 
@@ -15,19 +15,35 @@ export const Layout: React.FC<ILayoutProps> = ({
   children,
   title = APP_NAME,
 }) => {
-  const user = useRecoilValue(userState);
+  const [user, setUser] = useRecoilState(userState);
+
+  useEffect(() => {
+    const unsubscribe = authService.onAuthStateChanged(user => {
+      if (user) {
+        const currentUser = {
+          displayName: user.displayName || "",
+          photoURL: user.photoURL || "",
+          uid: user.uid,
+        };
+        setUser(currentUser);
+      } else {
+        setUser(null);
+      }
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const onLoginClick = () => {
-    console.log("Login");
-    onSocialClick();
+    googleLogin();
   };
 
   const onLogoutClick = () => {
-    console.log("Logout");
     authService.signOut();
   };
 
-  const onSocialClick = async () => {
+  const googleLogin = async () => {
     const provider = new firebaseInstance.auth.GoogleAuthProvider();
     await authService.signInWithPopup(provider);
   };

@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Layout } from "components/Layout";
 import { Question } from "components/Question";
-import { authService, dbService } from "firebase.confg";
-import { useRecoilState } from "recoil";
+import { dbService } from "firebase.confg";
+import { useRecoilValue } from "recoil";
 import { userState } from "stores/user";
 
 interface IFormProps {
@@ -12,26 +12,8 @@ interface IFormProps {
 }
 
 const HomePage = () => {
-  const [user, setUser] = useRecoilState(userState);
+  const user = useRecoilValue(userState);
   const [questionLoading, setQuestionLoading] = useState(false);
-
-  useEffect(() => {
-    const unsubscribe = authService.onAuthStateChanged(user => {
-      if (user) {
-        const userObj = {
-          displayName: user.displayName || "",
-          photoURL: user.photoURL || "",
-          uid: user.uid,
-        };
-        setUser(userObj);
-      } else {
-        setUser(null);
-      }
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
 
   const [data, setData] = useState<QuestionType[]>([]);
   const [activedAddModal, setActivedAddModal] = useState(false);
