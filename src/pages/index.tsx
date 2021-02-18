@@ -1,7 +1,6 @@
 import { useRouter } from "next/dist/client/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Layout } from "components/Layout";
 import { Question } from "components/Question";
 import { dbService } from "firebase.confg";
 import { useRecoilValue } from "recoil";
@@ -72,7 +71,7 @@ const HomePage = () => {
 
   const getQuestionData = async () => {
     try {
-      const docs = await questionsRef.get();
+      const docs = await questionsRef.orderBy("createdAt", "desc").get();
       const newData: any = [];
       docs.forEach(doc => {
         newData.push({
@@ -91,7 +90,7 @@ const HomePage = () => {
   }, []);
 
   return (
-    <Layout>
+    <div>
       <div className="mt-10">
         <div className="mb-10 flex flex-col items-center md:flex-row md:justify-between">
           <h1 className="text-3xl font-medium mb-5 md:mb-0 ">
@@ -147,7 +146,7 @@ const HomePage = () => {
           </div>
         </div>
       )}
-    </Layout>
+    </div>
   );
 };
 

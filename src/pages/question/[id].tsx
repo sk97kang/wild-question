@@ -1,6 +1,5 @@
 import { useRouter } from "next/dist/client/router";
 import { Avatar } from "components/Avatar";
-import { Layout } from "components/Layout";
 import { IoChatboxEllipsesOutline, IoSend } from "react-icons/io5";
 import { Comment } from "components/Comment";
 import { useEffect, useState } from "react";
@@ -35,7 +34,9 @@ const QuestionPage = () => {
       const commentDocs = await dbService
         .collection("comments")
         .where("questionId", "==", router.query.id as string)
+        .orderBy("createdAt")
         .get();
+
       const newComments: CommentType[] = [];
       commentDocs.forEach(commentDoc =>
         newComments.push(commentDoc.data() as CommentType)
@@ -90,7 +91,7 @@ const QuestionPage = () => {
   }
 
   return (
-    <Layout>
+    <div>
       <div className="pb-20">
         <div className="mt-5 cursor-pointer" onClick={goHome}>
           &larr; Go Home
@@ -147,7 +148,7 @@ const QuestionPage = () => {
           </form>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 
