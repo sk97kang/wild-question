@@ -14,7 +14,12 @@ interface IFormProps {
 const HomePage = () => {
   const router = useRouter();
   const { user } = useUser();
-  const { questions, loading, questionLoading, addQuestion } = useQuestion();
+  const {
+    questions,
+    questionInitLoading,
+    questionUpdateLoading,
+    addQuestion,
+  } = useQuestion();
   const [activedAddModal, setActivedAddModal] = useState(false);
   const { register, getValues, setValue, handleSubmit } = useForm<IFormProps>();
   const onAddQuestionClick = useCallback(() => {
@@ -30,7 +35,7 @@ const HomePage = () => {
       alert("로그인을 먼저 진행해주세요!");
       return;
     }
-    if (questionLoading) {
+    if (questionUpdateLoading) {
       return;
     }
     const { text } = getValues();
@@ -43,7 +48,7 @@ const HomePage = () => {
     await addQuestion(newQuestion);
     setValue("text", "");
     setActivedAddModal(false);
-  }, [user, loading]);
+  }, [user, questionInitLoading]);
 
   const onCancelClick = useCallback(() => {
     setActivedAddModal(false);
@@ -66,7 +71,7 @@ const HomePage = () => {
           </button>
         </div>
         <div>
-          {loading ? (
+          {questionInitLoading ? (
             <Loading />
           ) : (
             questions.map(question => (

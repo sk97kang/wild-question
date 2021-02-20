@@ -21,6 +21,7 @@ const QuestionPage = () => {
     loading,
     comments,
     addComment,
+    deleteQuestion,
     getComments,
     setComments,
     commentsInitLoading,
@@ -64,15 +65,15 @@ const QuestionPage = () => {
     }
   }, [user, commentsUpdateLoading, question]);
 
-  const deleteQuestion = useCallback(async () => {
+  const onDeleteQuestionClick = useCallback(async () => {
     if (!user) {
       alert("로그인 후 삭제가 가능합니다.");
     }
     if (question) {
-      await dbService.doc(`questions/${question.id}`).delete();
+      await deleteQuestion(question.id);
       router.replace("/");
     }
-  }, [dbService, user]);
+  }, [dbService, user, question, router]);
 
   const deleteComment = useCallback(
     async (commentId: string) => {
@@ -117,7 +118,7 @@ const QuestionPage = () => {
                 <div className="flex border">
                   <button
                     className="p-2 text-sm focus:outline-none hover:bg-red-500 hover:text-white transition-all"
-                    onClick={deleteQuestion}
+                    onClick={onDeleteQuestionClick}
                   >
                     <span>삭제하기</span>
                   </button>

@@ -6,13 +6,13 @@ import { commentsAtom, questionsAtom } from "stores/store";
 export const useQuestion = () => {
   const [questions, setQuestions] = useRecoilState(questionsAtom);
   const [comments, setComments] = useRecoilState(commentsAtom);
-  const [loading, setLoading] = useState(false);
-  const [questionLoading, setQuestionLoading] = useState(false);
+  const [questionInitLoading, setQuestionInitLoading] = useState(false);
+  const [questionUpdateLoading, setQuestionUpdateLoading] = useState(false);
   const [commentsInitLoading, setCommentsInitLoading] = useState(false);
   const [commentsUpdateLoading, setCommentsUpdateLoading] = useState(false);
 
   const getQuestions = useCallback(async () => {
-    setLoading(true);
+    setQuestionInitLoading(true);
     try {
       const docs = await dbService
         .collection("questions")
@@ -30,7 +30,7 @@ export const useQuestion = () => {
     } catch (error) {
       console.log(error);
     }
-    setLoading(false);
+    setQuestionInitLoading(false);
   }, [dbService]);
 
   const getQuestion = useCallback(
@@ -64,17 +64,37 @@ export const useQuestion = () => {
     [dbService]
   );
 
-  const addQuestion = useCallback(async (question: QuestionType) => {
-    setQuestionLoading(true);
-    try {
-      question.id = await dbService.collection("questions").doc().id;
-      await dbService.collection("questions").doc(question.id).set(question);
-      setQuestions(prev => [question, ...prev]);
-    } catch (error) {
-      console.log(error);
-    }
-    setQuestionLoading(false);
-  }, []);
+  const addQuestion = useCallback(
+    async (question: QuestionType) => {
+      setQuestionUpdateLoading(true);
+      try {
+        question.id = await dbService.collection("questions").doc().id;
+        await dbService.collection("questions").doc(question.id).set(question);
+        setQuestions(prev => [question, ...prev]);
+      } catch (error) {
+        console.log(error);
+      }
+      setQuestionUpdateLoading(false);
+    },
+    [dbService]
+  );
+
+  const deleteQuestion = useCallback(
+    async (questionId: string) => {
+      setQuestionUpdateLoading(true);
+      try {
+        await dbService.collection("questions").doc(questionId).delete();
+        console.log(questionId);
+        setQuestions(prev =>
+          prev.filter(question => question.id !== questionId)
+        );
+      } catch (error) {
+        console.log(error);
+      }
+      setQuestionUpdateLoading(false);
+    },
+    [dbService]
+  );
 
   const addComment = useCallback(async (comment: CommentType) => {
     setCommentsUpdateLoading(true);
@@ -85,7 +105,6 @@ export const useQuestion = () => {
     } catch (error) {
       console.log(error);
     }
-
     setCommentsUpdateLoading(false);
   }, []);
 
@@ -98,11 +117,12 @@ export const useQuestion = () => {
   return {
     questions,
     comments,
-    loading,
-    questionLoading,
+    questionInitLoading,
+    questionUpdateLoading,
     commentsInitLoading,
     commentsUpdateLoading,
     addQuestion,
+    deleteQuestion,
     addComment,
     setComments,
     getQuestions,
