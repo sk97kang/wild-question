@@ -1,8 +1,7 @@
 import { useRouter } from "next/dist/client/router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Question } from "components/Question";
-import { dbService } from "firebase.confg";
 import { Modal as CreateModal } from "components/Modal";
 import { Loading } from "components/Loading";
 import { useUser } from "hooks/useUser";
@@ -13,60 +12,46 @@ interface IFormProps {
 }
 
 const HomePage = () => {
-  const [questionLoading, setQuestionLoading] = useState(false);
+  const router = useRouter();
   const { user } = useUser();
-  const { questions, loading, setQuestions } = useQuestion();
-  const questionsRef = dbService.collection("questions");
-
-  const { register, getValues, setValue, handleSubmit } = useForm<IFormProps>();
-
+  const { questions, loading, questionLoading, addQuestion } = useQuestion();
   const [activedAddModal, setActivedAddModal] = useState(false);
-
-  const onAddQuestionClick = () => {
+  const { register, getValues, setValue, handleSubmit } = useForm<IFormProps>();
+  const onAddQuestionClick = useCallback(() => {
     if (!user) {
       alert("로그인을 먼저 진행해주세요!");
       return;
     }
-
     setActivedAddModal(true);
-  };
+  }, [user]);
 
-  const onSubmit = async () => {
+  const onSubmit = useCallback(async () => {
     if (!user) {
       alert("로그인을 먼저 진행해주세요!");
+      return;
+    }
+    if (questionLoading) {
       return;
     }
     const { text } = getValues();
-    try {
-      if (!questionLoading) {
-        setQuestionLoading(true);
-        const newId = await questionsRef.doc().id;
-        const newData = {
-          id: newId,
-          title: text,
-          writer: user,
-          createdAt: Date.now(),
-        };
-        await questionsRef.doc(newId).set(newData);
-        setQuestions(prev => [newData, ...prev]);
-        setValue("text", "");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-    setQuestionLoading(false);
+    const newQuestion: QuestionType = {
+      id: "",
+      title: text,
+      writer: user,
+      createdAt: Date.now(),
+    };
+    await addQuestion(newQuestion);
+    setValue("text", "");
     setActivedAddModal(false);
-  };
+  }, [user, loading]);
 
-  const onCancelClick = () => {
+  const onCancelClick = useCallback(() => {
     setActivedAddModal(false);
-  };
+  }, []);
 
-  const router = useRouter();
-
-  const onQuestionClick = (id: string) => {
+  const onQuestionClick = useCallback((id: string) => {
     router.push(`/question/${id}`);
-  };
+  }, []);
 
   return (
     <div>

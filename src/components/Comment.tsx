@@ -3,18 +3,20 @@ import { Avatar } from "components/Avatar";
 
 interface ICommentProps {
   comment: CommentType;
+  canDelete: boolean;
   onDeleteClick: (commentId: string) => void;
 }
 
 export const Comment: React.FC<ICommentProps> = ({
   comment,
+  canDelete,
   onDeleteClick,
 }) => {
   return (
     <div className="shadow-md rounded-md p-4 mb-2">
       <div className="flex justify-between items-start">
         <Avatar name={comment.writer.name} image={comment.writer.image} />
-        {comment.isMine && (
+        {canDelete && (
           <div className="flex border">
             <button
               className="p-1 text-xs focus:outline-none hover:bg-red-500 hover:text-white transition-all"

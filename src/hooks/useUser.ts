@@ -1,13 +1,16 @@
 import { authService } from "firebase.confg";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useRecoilState } from "recoil";
+import { userAtom } from "stores/store";
 
 export const useUser = () => {
-  const [user, setUser] = useState<UserType | null>(null);
+  const [user, setUser] = useRecoilState(userAtom);
 
   useEffect(() => {
     const unsubscribe = authService.onAuthStateChanged(user => {
+      let currentUser;
       if (user) {
-        const currentUser = {
+        currentUser = {
           id: user.uid,
           name: user.displayName || "",
           image: user.photoURL || "",
@@ -22,8 +25,5 @@ export const useUser = () => {
     };
   }, []);
 
-  return {
-    user,
-    setUser,
-  };
+  return { user };
 };
