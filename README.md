@@ -18,9 +18,9 @@
 - [ ] 질문 상세 페이지에서 새로고침 시 페이지 못 찾는 문제 해결 -> Refresh Button
 - [ ] Refactoring
 - [ ] Favicon
-- [ ] Login
 
 ## 추가 기능
 
-- [ ] Delete My Question
-- [ ] Delete My Comment
+- [x] Delete My Question
+- [x] Delete My Comment
+- [x] SNS Login(Github)

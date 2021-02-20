@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { APP_NAME } from "common/constants";
-import { authService, firebaseInstance } from "firebase.confg";
-import { useRecoilState } from "recoil";
-import { userState } from "stores/user";
+import { authService } from "firebase.confg";
 import { Avatar } from "./Avatar";
+import { useRouter } from "next/dist/client/router";
+import { useUser } from "hooks/useUser";
 
 interface ILayoutProps {
   title?: string;
@@ -15,37 +15,15 @@ export const Layout: React.FC<ILayoutProps> = ({
   children,
   title = APP_NAME,
 }) => {
-  const [user, setUser] = useRecoilState(userState);
-
-  useEffect(() => {
-    const unsubscribe = authService.onAuthStateChanged(user => {
-      if (user) {
-        const currentUser = {
-          displayName: user.displayName || "",
-          photoURL: user.photoURL || "",
-          uid: user.uid,
-        };
-        setUser(currentUser);
-      } else {
-        setUser(null);
-      }
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const router = useRouter();
+  const { user } = useUser();
 
   const onLoginClick = () => {
-    googleLogin();
+    router.push("/login");
   };
 
   const onLogoutClick = () => {
     authService.signOut();
-  };
-
-  const googleLogin = async () => {
-    const provider = new firebaseInstance.auth.GoogleAuthProvider();
-    await authService.signInWithPopup(provider);
   };
 
   return (
@@ -73,7 +51,7 @@ export const Layout: React.FC<ILayoutProps> = ({
             {user && (
               <>
                 <li>
-                  <Avatar name={user.displayName} image={user.photoURL} />
+                  <Avatar name={user.name} image={user.image} />
                 </li>
                 <li className="mr-4">
                   <button onClick={onLogoutClick}>로그아웃</button>

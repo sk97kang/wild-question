@@ -9,6 +9,7 @@ type QuestionType = {
   title: string;
   writer: UserType;
   createdAt: number;
+  isMine?: boolean;
 };
 
 type CommentType = {
@@ -17,4 +18,5 @@ type CommentType = {
   comment: string;
   writer: UserType;
   createdAt: number;
+  isMine?: boolean;
 };

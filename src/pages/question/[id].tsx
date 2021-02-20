@@ -5,8 +5,8 @@ import { Comment } from "components/Comment";
 import { useEffect, useState } from "react";
 import { dbService } from "firebase.confg";
 import { useForm } from "react-hook-form";
-import { useRecoilValue } from "recoil";
-import { userState } from "stores/user";
+import { Loading } from "components/Loading";
+import { useUser } from "hooks/useUser";
 
 interface IFormProps {
   comment: string;
@@ -14,10 +14,11 @@ interface IFormProps {
 
 const QuestionPage = () => {
   const router = useRouter();
-  const user = useRecoilValue(userState);
+  const { user } = useUser();
   const [questionData, setQuestionData] = useState<QuestionType | null>(null);
-  const [commentData, setCommentData] = useState<CommentType[]>([]);
+  const [commentsData, setCommentsData] = useState<CommentType[]>([]);
   const [commentLoading, setCommentLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const goHome = () => {
     router.push("/");
@@ -37,14 +38,15 @@ const QuestionPage = () => {
         .orderBy("createdAt")
         .get();
 
-      const newComments: CommentType[] = [];
-      commentDocs.forEach(commentDoc =>
-        newComments.push(commentDoc.data() as CommentType)
-      );
-      setCommentData(newComments);
+      const Comments: CommentType[] = [];
+      commentDocs.forEach(commentDoc => {
+        Comments.push(commentDoc.data() as CommentType);
+      });
+      setCommentsData(Comments);
     } catch (error) {
       console.log(error);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -52,6 +54,22 @@ const QuestionPage = () => {
       getData();
     }
   }, [router.query]);
+
+  useEffect(() => {
+    if (questionData) {
+      questionData.isMine = questionData.writer.id === user?.id;
+      setQuestionData({ ...questionData });
+    }
+
+    if (commentsData) {
+      setCommentsData(
+        commentsData.map(comment => {
+          comment.isMine = comment.writer.id === user?.id;
+          return comment;
+        })
+      );
+    }
+  }, [user, loading]);
 
   const { register, handleSubmit, getValues, setValue } = useForm<IFormProps>();
 
@@ -69,15 +87,12 @@ const QuestionPage = () => {
           id,
           questionId: router.query.id as string,
           comment,
-          writer: {
-            id: user.uid,
-            image: user.photoURL,
-            name: user.displayName,
-          },
+          writer: user,
           createdAt: Date.now(),
+          isMine: true,
         };
         await dbService.collection(`comments`).doc(id).set(newData);
-        setCommentData(prev => [...prev, newData]);
+        setCommentsData(prev => [...prev, newData]);
         setValue("comment", "");
       }
     } catch (error) {
@@ -86,9 +101,36 @@ const QuestionPage = () => {
     setCommentLoading(false);
   };
 
-  if (!questionData) {
-    return <div>Loading...</div>;
+  const deleteQuestion = async () => {
+    if (!user) {
+      alert("로그인 후 삭제가 가능합니다.");
+    }
+    if (questionData) {
+      await dbService.doc(`questions/${questionData.id}`).delete();
+      router.replace("/");
+    }
+  };
+
+  const deleteComment = async (commentId: string) => {
+    if (!user) {
+      alert("로그인 후 삭제가 가능합니다.");
+    }
+    if (commentsData) {
+      setCommentsData(comments =>
+        comments.filter(comment => comment.id !== commentId)
+      );
+      await dbService.doc(`comments/${commentId}`).delete();
+    }
+  };
+
+  if (loading) {
+    return <Loading />;
   }
+
+  if (!questionData) {
+    return <Loading />;
+  }
+  console.log(questionData);
 
   return (
     <div>
@@ -98,36 +140,46 @@ const QuestionPage = () => {
         </div>
         <div className="shadow-md p-6 rounded-md mt-5 mb-8">
           <div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-start">
               <Avatar
                 size={36}
                 name={questionData.writer.name}
                 image={questionData.writer.image}
               />
-              <div className="text-sm opacity-70">
-                {new Date(questionData.createdAt).toLocaleDateString()}
-              </div>
+              {questionData.isMine && (
+                <div className="flex border">
+                  <button
+                    className="p-2 text-sm focus:outline-none hover:bg-red-500 hover:text-white transition-all"
+                    onClick={deleteQuestion}
+                  >
+                    <span>삭제하기</span>
+                  </button>
+                </div>
+              )}
             </div>
             <div className="text-4xl font-medium mt-20 mb-20 text-center">
               "{questionData.title}"
             </div>
-            <div className="flex">
-              {/* <div className="flex items-center mr-4">
-                <IoHeartOutline size={20} className="mr-1" />
-                <span className="text-xs font-light opacity-70">50</span>
-              </div> */}
+            <div className="flex justify-between items-end">
               <div className="flex items-center">
                 <IoChatboxEllipsesOutline size={20} className="mr-1" />
                 <span className="text-xs font-light opacity-70">
-                  {commentData.length}
+                  {commentsData.length}
                 </span>
+              </div>
+              <div className="text-sm opacity-70">
+                {new Date(questionData.createdAt).toLocaleDateString()}
               </div>
             </div>
           </div>
         </div>
 
-        {commentData.map(comment => (
-          <Comment key={comment.id} comment={comment} />
+        {commentsData.map(comment => (
+          <Comment
+            key={comment.id}
+            comment={comment}
+            onDeleteClick={deleteComment}
+          />
         ))}
 
         <div className="w-full fixed bottom-0 left-0 pt-2 pb-8 z-10 px-4 md:px-0 bg-white">

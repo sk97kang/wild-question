@@ -12,7 +12,7 @@ export const Question: React.FC<IQuestionProps> = ({
 }) => {
   return (
     <div
-      className="shadow-md p-4 rounded-md mb-8 hover:shadow-lg transition cursor-pointer"
+      className="shadow-md p-4 rounded-md mb-4 hover:shadow-lg transition cursor-pointer"
       onClick={() => onCardClick(question.id)}
     >
       <div className="text-xl font-medium mb-6 mt-4">{question.title}</div>
