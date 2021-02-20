@@ -18,7 +18,6 @@ const QuestionPage = () => {
   const { user } = useUser();
   const {
     getQuestion,
-    loading,
     comments,
     addComment,
     deleteQuestion,
@@ -91,10 +90,6 @@ const QuestionPage = () => {
     },
     [dbService, user]
   );
-
-  if (loading) {
-    return <Loading />;
-  }
 
   if (!question) {
     return <Loading />;
