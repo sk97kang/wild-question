@@ -20,7 +20,6 @@ const QuestionPage = () => {
   const { user } = useUser();
   const {
     question,
-    questionLoading,
     getQuestion,
     comments,
     addComment,
