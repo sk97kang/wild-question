@@ -37,10 +37,10 @@ const QuestionPage: React.FC<IQuestionPageProps> = ({ question }) => {
   }, [router]);
 
   useEffect(() => {
-    if (router.query.id) {
-      getComments(router.query.id as string);
+    if (question) {
+      getComments(question.id);
     }
-  }, [router.query.id]);
+  }, [question]);
 
   const { register, handleSubmit, getValues, setValue } = useForm<IFormProps>();
 
@@ -94,10 +94,6 @@ const QuestionPage: React.FC<IQuestionPageProps> = ({ question }) => {
     },
     [dbService, user]
   );
-
-  if (!question) {
-    return <Loading />;
-  }
 
   return (
     <Layout title={question.title}>
