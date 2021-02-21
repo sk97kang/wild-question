@@ -1,6 +1,7 @@
 import { Layout } from "components/Layout";
 import { authService, firebaseInstance } from "firebase.confg";
 import { useUser } from "hooks/useUser";
+import { GetStaticProps } from "next";
 import { useRouter } from "next/dist/client/router";
 import React, { useEffect } from "react";
 import {
@@ -46,6 +47,10 @@ const LoginPage = () => {
       </div>
     </Layout>
   );
+};
+
+export const getStaticProps: GetStaticProps = async () => {
+  return { props: {} };
 };
 
 export default LoginPage;

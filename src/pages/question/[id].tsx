@@ -9,16 +9,20 @@ import { Loading } from "components/Loading";
 import { useUser } from "hooks/useUser";
 import { useQuestion } from "hooks/useQuestion";
 import { Layout } from "components/Layout";
+import { GetServerSideProps } from "next";
+
+interface IQuestionPageProps {
+  question: QuestionType;
+}
 
 interface IFormProps {
   comment: string;
 }
 
-const QuestionPage = () => {
+const QuestionPage: React.FC<IQuestionPageProps> = ({ question }) => {
   const router = useRouter();
   const { user } = useUser();
   const {
-    getQuestion,
     comments,
     addComment,
     deleteQuestion,
@@ -27,7 +31,6 @@ const QuestionPage = () => {
     commentsInitLoading,
     commentsUpdateLoading,
   } = useQuestion();
-  const question = getQuestion(router.query.id as string);
 
   const goHome = useCallback(() => {
     router.push("/");
@@ -171,6 +174,16 @@ const QuestionPage = () => {
       </div>
     </Layout>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async context => {
+  const id = context.params?.id;
+  const doc = await dbService
+    .collection("questions")
+    .doc(id as string)
+    .get();
+  const question = doc.data();
+  return { props: { question } };
 };
 
 export default QuestionPage;

@@ -1,5 +1,5 @@
 import { useRouter } from "next/dist/client/router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Question } from "components/Question";
 import { Modal as CreateModal } from "components/Modal";
@@ -7,22 +7,36 @@ import { Loading } from "components/Loading";
 import { useUser } from "hooks/useUser";
 import { useQuestion } from "hooks/useQuestion";
 import { Layout } from "components/Layout";
+import { GetServerSideProps } from "next";
+import { dbService } from "firebase.confg";
 
 interface IFormProps {
   text: string;
 }
 
-const HomePage = () => {
+interface IHomePageProps {
+  initQuestions: QuestionType[];
+}
+
+const HomePage: React.FC<IHomePageProps> = ({ initQuestions }) => {
   const router = useRouter();
   const { user } = useUser();
   const {
     questions,
+    setQuestions,
     questionInitLoading,
     questionUpdateLoading,
     addQuestion,
   } = useQuestion();
   const [activedAddModal, setActivedAddModal] = useState(false);
   const { register, getValues, setValue, handleSubmit } = useForm<IFormProps>();
+
+  useEffect(() => {
+    if (questions.length === 0) {
+      setQuestions(initQuestions);
+    }
+  }, [questions]);
+
   const onAddQuestionClick = useCallback(() => {
     if (!user) {
       alert("로그인을 먼저 진행해주세요!");
@@ -98,6 +112,21 @@ const HomePage = () => {
       />
     </Layout>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const docs = await dbService
+    .collection("questions")
+    .orderBy("createdAt", "desc")
+    .get();
+  const initQuestions: any[] = [];
+  docs.forEach(doc => {
+    initQuestions.push({
+      id: doc.id,
+      ...doc.data(),
+    });
+  });
+  return { props: { initQuestions } };
 };
 
 export default HomePage;

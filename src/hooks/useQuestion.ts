@@ -1,5 +1,5 @@
 import { dbService } from "firebase.confg";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
 import { commentsAtom, questionsAtom } from "stores/store";
 
@@ -18,15 +18,14 @@ export const useQuestion = () => {
         .collection("questions")
         .orderBy("createdAt", "desc")
         .get();
-      const newQuestions: any[] = [];
+      const questions: any[] = [];
       docs.forEach(doc => {
-        newQuestions.push({
+        questions.push({
           id: doc.id,
           ...doc.data(),
-          isMine: false,
         });
       });
-      setQuestions(newQuestions);
+      setQuestions(questions);
     } catch (error) {
       console.log(error);
     }
@@ -84,7 +83,6 @@ export const useQuestion = () => {
       setQuestionUpdateLoading(true);
       try {
         await dbService.collection("questions").doc(questionId).delete();
-        console.log(questionId);
         setQuestions(prev =>
           prev.filter(question => question.id !== questionId)
         );
@@ -108,15 +106,11 @@ export const useQuestion = () => {
     setCommentsUpdateLoading(false);
   }, []);
 
-  useEffect(() => {
-    if (questions.length === 0) {
-      getQuestions();
-    }
-  }, []);
-
   return {
     questions,
+    setQuestions,
     comments,
+    setComments,
     questionInitLoading,
     questionUpdateLoading,
     commentsInitLoading,
@@ -124,7 +118,6 @@ export const useQuestion = () => {
     addQuestion,
     deleteQuestion,
     addComment,
-    setComments,
     getQuestions,
     getQuestion,
     getComments,
