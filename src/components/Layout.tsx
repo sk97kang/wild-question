@@ -8,13 +8,10 @@ import { useRouter } from "next/dist/client/router";
 import { useUser } from "hooks/useUser";
 
 interface ILayoutProps {
-  title?: string;
+  title: string;
 }
 
-export const Layout: React.FC<ILayoutProps> = ({
-  children,
-  title = APP_NAME,
-}) => {
+export const Layout: React.FC<ILayoutProps> = ({ children, title }) => {
   const router = useRouter();
   const { user } = useUser();
 
@@ -29,16 +26,18 @@ export const Layout: React.FC<ILayoutProps> = ({
   return (
     <div>
       <Head>
-        <title>{title}</title>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        <title>
+          {title} | {APP_NAME}
+        </title>
       </Head>
       <header className="bg-indigo-500 text-white">
-        <nav className="max-w-screen-md mx-auto flex justify-between items-center p-4">
+        <nav className="max-w-screen-md mx-auto flex justify-between items-center h-14 px-4 md:px-0">
           <ul>
             <li>
               <Link href="/">
-                <a>Home</a>
+                <a>
+                  <img src="/img/logo.png" width="60" />
+                </a>
               </Link>
             </li>
           </ul>

@@ -10,6 +10,7 @@
 - [x] 질문 보기
 - [x] 질문 등록
 - [x] 질문에 답글 달기
+- [x] SNS Login(Google)
 
 ## 개선사항
 
@@ -24,3 +25,4 @@
 - [x] Delete My Question
 - [x] Delete My Comment
 - [x] SNS Login(Github)
+- [x] 질문에서 댓글 수 보기

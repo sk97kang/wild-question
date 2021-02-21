@@ -1,1 +1,1 @@
-export const APP_NAME = "Wild Question";
+export const APP_NAME = "엉궁해";

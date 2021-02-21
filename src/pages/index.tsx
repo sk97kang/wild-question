@@ -6,6 +6,7 @@ import { Modal as CreateModal } from "components/Modal";
 import { Loading } from "components/Loading";
 import { useUser } from "hooks/useUser";
 import { useQuestion } from "hooks/useQuestion";
+import { Layout } from "components/Layout";
 
 interface IFormProps {
   text: string;
@@ -59,10 +60,12 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div>
+    <Layout title="Home">
       <div className="mt-10">
         <div className="mb-10 flex flex-col items-center md:flex-row md:justify-between">
-          <h1 className="text-3xl font-medium mb-5 md:mb-0 ">우리들의 엉궁</h1>
+          <h1 className="text-3xl font-medium mb-5 md:mb-0 ">
+            우리들의 엉궁해
+          </h1>
           <button
             className="py-2 px-4 rounded-sm text-white bg-indigo-500 hover:bg-indigo-700 transition focus:outline-none"
             onClick={onAddQuestionClick}
@@ -93,7 +96,7 @@ const HomePage = () => {
         onSubmit={handleSubmit(onSubmit)}
         onCancelClick={onCancelClick}
       />
-    </div>
+    </Layout>
   );
 };
 

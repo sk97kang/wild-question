@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { Loading } from "components/Loading";
 import { useUser } from "hooks/useUser";
 import { useQuestion } from "hooks/useQuestion";
+import { Layout } from "components/Layout";
 
 interface IFormProps {
   comment: string;
@@ -96,7 +97,7 @@ const QuestionPage = () => {
   }
 
   return (
-    <div>
+    <Layout title={question.title}>
       <div className="pb-20">
         <div className="mt-5 cursor-pointer" onClick={goHome}>
           &larr; Go Home
@@ -168,7 +169,7 @@ const QuestionPage = () => {
           </form>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
