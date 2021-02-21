@@ -7,25 +7,20 @@ import { Loading } from "components/Loading";
 import { useUser } from "hooks/useUser";
 import { useQuestion } from "hooks/useQuestion";
 import { Layout } from "components/Layout";
-import { GetServerSideProps } from "next";
-import { dbService } from "firebase.confg";
+import { GetStaticProps } from "next";
 
 interface IFormProps {
   text: string;
 }
 
-interface IHomePageProps {
-  initQuestions: QuestionType[];
-}
-
-const HomePage: React.FC<IHomePageProps> = ({ initQuestions }) => {
+const HomePage = () => {
   const router = useRouter();
   const { user } = useUser();
   const {
     questions,
-    setQuestions,
     questionInitLoading,
     questionUpdateLoading,
+    getQuestions,
     addQuestion,
   } = useQuestion();
   const [activedAddModal, setActivedAddModal] = useState(false);
@@ -33,9 +28,9 @@ const HomePage: React.FC<IHomePageProps> = ({ initQuestions }) => {
 
   useEffect(() => {
     if (questions.length === 0) {
-      setQuestions(initQuestions);
+      getQuestions();
     }
-  }, [questions]);
+  }, []);
 
   const onAddQuestionClick = useCallback(() => {
     if (!user) {
@@ -114,19 +109,8 @@ const HomePage: React.FC<IHomePageProps> = ({ initQuestions }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async () => {
-  const docs = await dbService
-    .collection("questions")
-    .orderBy("createdAt", "desc")
-    .get();
-  const initQuestions: any[] = [];
-  docs.forEach(doc => {
-    initQuestions.push({
-      id: doc.id,
-      ...doc.data(),
-    });
-  });
-  return { props: { initQuestions } };
+export const getStaticProps: GetStaticProps = async () => {
+  return { props: {} };
 };
 
 export default HomePage;

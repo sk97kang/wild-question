@@ -11,18 +11,17 @@ import { useQuestion } from "hooks/useQuestion";
 import { Layout } from "components/Layout";
 import { GetServerSideProps } from "next";
 
-interface IQuestionPageProps {
-  question: QuestionType;
-}
-
 interface IFormProps {
   comment: string;
 }
 
-const QuestionPage: React.FC<IQuestionPageProps> = ({ question }) => {
+const QuestionPage = () => {
   const router = useRouter();
   const { user } = useUser();
   const {
+    question,
+    questionLoading,
+    getQuestion,
     comments,
     addComment,
     deleteQuestion,
@@ -32,15 +31,21 @@ const QuestionPage: React.FC<IQuestionPageProps> = ({ question }) => {
     commentsUpdateLoading,
   } = useQuestion();
 
+  useEffect(() => {
+    if (router.query.id && !question) {
+      getQuestion(router.query.id as string);
+    }
+  }, [router.query.id]);
+
   const goHome = useCallback(() => {
     router.push("/");
   }, [router]);
 
   useEffect(() => {
-    if (question) {
-      getComments(question.id);
+    if (router.query.id) {
+      getComments(router.query.id as string);
     }
-  }, [question]);
+  }, [router.query.id]);
 
   const { register, handleSubmit, getValues, setValue } = useForm<IFormProps>();
 
@@ -94,6 +99,10 @@ const QuestionPage: React.FC<IQuestionPageProps> = ({ question }) => {
     },
     [dbService, user]
   );
+
+  if (!question) {
+    return <Loading />;
+  }
 
   return (
     <Layout title={question.title}>
@@ -172,14 +181,8 @@ const QuestionPage: React.FC<IQuestionPageProps> = ({ question }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async context => {
-  const id = context.params?.id;
-  const doc = await dbService
-    .collection("questions")
-    .doc(id as string)
-    .get();
-  const question = doc.data();
-  return { props: { question } };
+export const getServersideProps: GetServerSideProps = async () => {
+  return { props: {} };
 };
 
 export default QuestionPage;

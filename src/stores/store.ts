@@ -5,6 +5,11 @@ export const userAtom = atom<UserType | null>({
   default: null,
 });
 
+export const questionAtom = atom<QuestionType | null>({
+  key: "questionAtom",
+  default: null,
+});
+
 export const questionsAtom = atom<QuestionType[]>({
   key: "questionsAtom",
   default: [],

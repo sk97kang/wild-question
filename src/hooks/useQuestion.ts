@@ -1,11 +1,13 @@
 import { dbService } from "firebase.confg";
 import { useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
-import { commentsAtom, questionsAtom } from "stores/store";
+import { commentsAtom, questionAtom, questionsAtom } from "stores/store";
 
 export const useQuestion = () => {
+  const [question, setQuestion] = useRecoilState(questionAtom);
   const [questions, setQuestions] = useRecoilState(questionsAtom);
   const [comments, setComments] = useRecoilState(commentsAtom);
+  const [questionLoading, setQuestionLoading] = useState(false);
   const [questionInitLoading, setQuestionInitLoading] = useState(false);
   const [questionUpdateLoading, setQuestionUpdateLoading] = useState(false);
   const [commentsInitLoading, setCommentsInitLoading] = useState(false);
@@ -33,8 +35,28 @@ export const useQuestion = () => {
   }, [dbService]);
 
   const getQuestion = useCallback(
-    (questionId: string) => {
-      return questions.find(question => question.id === questionId);
+    async (questionId: string) => {
+      const findQuestion = questions.find(
+        question => question.id === questionId
+      );
+      if (findQuestion) {
+        setQuestion(findQuestion);
+        false;
+      }
+      setQuestionLoading(true);
+      try {
+        const doc = await dbService
+          .collection("questions")
+          .doc(questionId)
+          .get();
+        setQuestion({
+          id: doc.id,
+          ...doc.data(),
+        } as any);
+      } catch (error) {
+        console.log(error);
+      }
+      setQuestionLoading(false);
     },
     [questions]
   );
@@ -108,9 +130,9 @@ export const useQuestion = () => {
 
   return {
     questions,
-    setQuestions,
+    question,
+    questionLoading,
     comments,
-    setComments,
     questionInitLoading,
     questionUpdateLoading,
     commentsInitLoading,
@@ -121,5 +143,6 @@ export const useQuestion = () => {
     getQuestions,
     getQuestion,
     getComments,
+    setComments,
   };
 };
